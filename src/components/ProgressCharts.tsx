@@ -91,16 +91,6 @@ export function ProgressCharts() {
     };
   }, [weighIns]);
 
-  if (!goals || !chartData) {
-    return null;
-  }
-
-  const targetDate = new Date(goals.endDate);
-  const daysToTarget = Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-
-  const totalDeficitNeeded = db.getTotalDeficitNeeded();
-  const totalDeficitAchieved = db.getTotalDeficitAchieved();
-  
   const deficitChartData = useMemo(() => {
     const dayStatuses = db.getDayStatuses();
     if (dayStatuses.length === 0) return [];
@@ -118,6 +108,16 @@ export function ProgressCharts() {
     });
   }, []);
 
+  if (!goals || !chartData) {
+    return null;
+  }
+
+  const targetDate = new Date(goals.endDate);
+  const daysToTarget = Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
+  const totalDeficitNeeded = db.getTotalDeficitNeeded();
+  const totalDeficitAchieved = db.getTotalDeficitAchieved();
+  
   return (
     <div className="space-y-6">
       {deficitChartData.length > 0 && (

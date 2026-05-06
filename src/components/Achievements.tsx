@@ -15,6 +15,15 @@ interface Milestone {
   message: string;
 }
 
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: typeof Trophy;
+  color: string;
+  unlocked: boolean;
+}
+
 export function Achievements() {
   const [streak, setStreak] = useState(0);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
