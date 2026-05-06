@@ -1,6 +1,6 @@
 ---
 title: Gamification & achievements
-status: todo
+status: done
 priority: medium
 type: feature
 tags:
