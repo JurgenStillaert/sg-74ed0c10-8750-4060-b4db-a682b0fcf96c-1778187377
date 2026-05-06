@@ -8,6 +8,7 @@ import { WeighInHistory } from "@/components/WeighInHistory";
 import { SportLogger } from "@/components/SportLogger";
 import { NutritionLogger } from "@/components/NutritionLogger";
 import { DailyStats } from "@/components/DailyStats";
+import { ProgressCharts } from "@/components/ProgressCharts";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -100,6 +101,8 @@ export default function Home() {
               <DailyStats />
             </>
           )}
+
+          <ProgressCharts />
         </div>
       </div>
     </>
