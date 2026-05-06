@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/db";
-import { Trophy, Flame, Target, TrendingDown, Award, Star } from "lucide-react";
+import { Trophy, Flame, Target, TrendingDown, Award, Star, Zap } from "lucide-react";
 
 interface Milestone {
   id: string;
@@ -108,6 +108,123 @@ export function Achievements() {
     if (latestAchieved && weighIns.length <= 3) {
       setRecentAchievement(latestAchieved);
     }
+  }, []);
+
+  const achievements = useMemo(() => {
+    const badges: Achievement[] = [];
+    const goals = db.getGoals();
+    const weighIns = db.getWeighIns();
+    const dayStatuses = db.getDayStatuses();
+
+    if (weighIns.length === 0) return badges;
+
+    const totalDeficitNeeded = db.getTotalDeficitNeeded();
+    const totalDeficitAchieved = db.getTotalDeficitAchieved();
+    const greenDays = dayStatuses.filter((s) => s.classification === "green").length;
+
+    badges.push({
+      id: "first-entry",
+      title: "Eerste Stap",
+      description: "Je eerste weging geregistreerd",
+      icon: Award,
+      color: "text-primary",
+      unlocked: true,
+    });
+
+    if (greenDays >= 7) {
+      badges.push({
+        id: "week-streak",
+        title: "Week Warrior",
+        description: "7 groene dagen op rij",
+        icon: Zap,
+        color: "text-green-600",
+        unlocked: true,
+      });
+    }
+
+    if (greenDays >= 30) {
+      badges.push({
+        id: "month-master",
+        title: "Maand Meester",
+        description: "30 groene dagen behaald",
+        icon: Star,
+        color: "text-amber-600",
+        unlocked: true,
+      });
+    }
+
+    if (totalDeficitNeeded && totalDeficitAchieved >= totalDeficitNeeded * 0.25) {
+      badges.push({
+        id: "quarter-deficit",
+        title: "Kwart Bereikt",
+        description: "25% van je totale deficit behaald",
+        icon: TrendingDown,
+        color: "text-accent",
+        unlocked: true,
+      });
+    }
+
+    if (totalDeficitNeeded && totalDeficitAchieved >= totalDeficitNeeded * 0.5) {
+      badges.push({
+        id: "halfway-deficit",
+        title: "Halverwege!",
+        description: "50% van je totale deficit behaald",
+        icon: Target,
+        color: "text-primary",
+        unlocked: true,
+      });
+    }
+
+    if (totalDeficitNeeded && totalDeficitAchieved >= totalDeficitNeeded * 0.75) {
+      badges.push({
+        id: "three-quarter-deficit",
+        title: "Bijna Daar",
+        description: "75% van je totale deficit behaald",
+        icon: Flame,
+        color: "text-amber-600",
+        unlocked: true,
+      });
+    }
+
+    if (goals && weighIns.length > 0) {
+      const currentWeight = weighIns[weighIns.length - 1].weight;
+      const weightLost = goals.startWeight - currentWeight;
+
+      if (weightLost >= 5) {
+        badges.push({
+          id: "5kg-lost",
+          title: "5kg Lichter",
+          description: "5 kilogram verloren",
+          icon: TrendingDown,
+          color: "text-green-600",
+          unlocked: true,
+        });
+      }
+
+      if (weightLost >= 10) {
+        badges.push({
+          id: "10kg-lost",
+          title: "10kg Champion",
+          description: "10 kilogram verloren",
+          icon: Trophy,
+          color: "text-accent",
+          unlocked: true,
+        });
+      }
+
+      if (currentWeight <= goals.goalWeight) {
+        badges.push({
+          id: "goal-reached",
+          title: "Doel Bereikt! 🎉",
+          description: "Je hebt je doelgewicht behaald",
+          icon: Trophy,
+          color: "text-primary",
+          unlocked: true,
+        });
+      }
+    }
+
+    return badges;
   }, []);
 
   const calculateStreak = (weighIns: typeof db.getWeighIns extends () => infer R ? R : never): number => {

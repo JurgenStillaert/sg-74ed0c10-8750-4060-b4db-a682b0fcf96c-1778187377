@@ -11,6 +11,9 @@ import { DailyStats } from "@/components/DailyStats";
 import { ProgressCharts } from "@/components/ProgressCharts";
 import { Achievements } from "@/components/Achievements";
 import { ProgressRings } from "@/components/ProgressRings";
+import { DayClassifier } from "@/components/DayClassifier";
+import { YearCalendar } from "@/components/YearCalendar";
+import { YearStats } from "@/components/YearStats";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -95,8 +98,14 @@ export default function Home() {
 
           <Achievements />
 
+          <YearStats />
+
+          <YearCalendar />
+
           {todayWeighIn && (
             <>
+              <DayClassifier date={today} onClassify={() => setRefreshKey((prev) => prev + 1)} />
+
               <ProgressRings />
 
               <div className="grid md:grid-cols-2 gap-6">

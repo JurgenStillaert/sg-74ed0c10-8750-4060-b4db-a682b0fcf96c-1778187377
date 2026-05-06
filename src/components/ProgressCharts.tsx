@@ -98,8 +98,89 @@ export function ProgressCharts() {
   const targetDate = new Date(goals.endDate);
   const daysToTarget = Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
+  const totalDeficitNeeded = db.getTotalDeficitNeeded();
+  const totalDeficitAchieved = db.getTotalDeficitAchieved();
+  
+  const deficitChartData = useMemo(() => {
+    const dayStatuses = db.getDayStatuses();
+    if (dayStatuses.length === 0) return [];
+
+    let accumulated = 0;
+    return dayStatuses.map((status) => {
+      accumulated += Math.max(0, status.deficit);
+      const date = new Date(status.date);
+      return {
+        date: status.date,
+        dateDisplay: date.toLocaleDateString("nl-NL", { day: "2-digit", month: "short" }),
+        deficit: Math.round(accumulated),
+        classification: status.classification,
+      };
+    });
+  }, []);
+
   return (
     <div className="space-y-6">
+      {deficitChartData.length > 0 && (
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle className="text-2xl flex items-center gap-2">
+              <TrendingDown className="w-6 h-6 text-primary" />
+              Cumulatief Calorie Deficit
+            </CardTitle>
+            <CardDescription>
+              Je totale opgebouwde deficit sinds start
+              {totalDeficitNeeded && (
+                <span className="ml-2 font-semibold">
+                  ({totalDeficitAchieved.toFixed(0)} / {totalDeficitNeeded.toFixed(0)} kcal)
+                </span>
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={deficitChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis
+                  dataKey="dateDisplay"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={12}
+                  tickLine={false}
+                  label={{ value: "kcal", angle: -90, position: "insideLeft" }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "hsl(var(--card))",
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "0.5rem",
+                  }}
+                  formatter={(value: number) => [`${value.toFixed(0)} kcal`, "Cumulatief Deficit"]}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="deficit"
+                  name="Cumulatief Deficit"
+                  stroke="hsl(var(--primary))"
+                  fill="hsl(var(--primary) / 0.2)"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+            {totalDeficitNeeded && (
+              <div className="mt-4 p-4 bg-accent/10 border-2 border-accent rounded-lg">
+                <p className="text-sm font-semibold">
+                  Voortgang: {((totalDeficitAchieved / totalDeficitNeeded) * 100).toFixed(1)}% van totaal doel bereikt
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="border-2">
         <CardHeader>
           <CardTitle className="text-2xl flex items-center gap-2">
