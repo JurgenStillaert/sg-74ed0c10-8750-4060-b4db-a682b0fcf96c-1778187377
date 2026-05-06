@@ -126,7 +126,7 @@ export const db = {
     if (!weighIn) return null;
 
     const sportCalories = sportEntries.reduce((sum, e) => sum + e.calories, 0);
-    const totalExpenditure = weighIn.bmr * 0.25 + sportCalories;
+    const totalExpenditure = weighIn.bmr * 1.25 + sportCalories;
     const totalIntake = nutrition?.calories || 0;
     const deficit = totalExpenditure - totalIntake;
     const proteinPerKg = nutrition ? nutrition.protein / weighIn.weight : 0;

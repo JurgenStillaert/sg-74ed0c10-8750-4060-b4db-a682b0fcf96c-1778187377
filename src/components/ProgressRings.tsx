@@ -2,17 +2,20 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db } from "@/lib/db";
-import { Target, Utensils, Dumbbell } from "lucide-react";
+import { Target, Utensils, Flame } from "lucide-react";
 
 interface RingProps {
   value: number;
   max: number;
   color: string;
   label: string;
+  sublabel: string;
+  centerText: string;
   icon: typeof Target;
+  showPercentage?: boolean;
 }
 
-function ProgressRing({ value, max, color, label, icon: Icon }: RingProps) {
+function ProgressRing({ value, max, color, label, sublabel, centerText, icon: Icon, showPercentage = true }: RingProps) {
   const percentage = Math.min((value / max) * 100, 100);
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
@@ -49,15 +52,17 @@ function ProgressRing({ value, max, color, label, icon: Icon }: RingProps) {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center">
             <Icon className={`w-6 h-6 mx-auto mb-1 ${color}`} />
-            <p className="text-sm font-bold tabular-nums">{percentage.toFixed(0)}%</p>
+            {showPercentage ? (
+              <p className="text-sm font-bold tabular-nums">{percentage.toFixed(0)}%</p>
+            ) : (
+              <p className="text-sm font-bold tabular-nums">{centerText}</p>
+            )}
           </div>
         </div>
       </div>
       <div className="text-center">
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-muted-foreground tabular-nums">
-          {value.toFixed(0)} / {max.toFixed(0)}
-        </p>
+        <p className="text-xs text-muted-foreground tabular-nums">{sublabel}</p>
       </div>
       {isComplete && (
         <div className="text-xs font-semibold text-accent">Doel behaald! ✓</div>
@@ -77,6 +82,7 @@ export function ProgressRings() {
 
   const proteinGoal = 1.6;
   const deficitGoal = 500;
+  const fatLossGoal = deficitGoal / 7700;
 
   return (
     <Card className="border-2 border-primary/20">
@@ -94,21 +100,30 @@ export function ProgressRings() {
             max={proteinGoal}
             color="text-accent"
             label="Eiwit"
+            sublabel={`${stats.proteinPerKg.toFixed(1)} / ${proteinGoal.toFixed(1)}`}
+            centerText=""
             icon={Utensils}
+            showPercentage={true}
           />
           <ProgressRing
             value={stats.deficit}
             max={deficitGoal}
             color="text-primary"
             label="Deficit"
+            sublabel={`${stats.totalIntake.toFixed(0)} / ${stats.totalExpenditure.toFixed(0)}`}
+            centerText={`${stats.deficit.toFixed(0)}`}
             icon={Target}
+            showPercentage={false}
           />
           <ProgressRing
-            value={stats.totalExpenditure - stats.totalIntake}
-            max={deficitGoal}
+            value={stats.fatLoss * 1000}
+            max={fatLossGoal * 1000}
             color="text-accent"
-            label="Sport"
-            icon={Dumbbell}
+            label="Vet Verloren"
+            sublabel={`${(stats.fatLoss * 1000).toFixed(0)}g / ${(fatLossGoal * 1000).toFixed(0)}g`}
+            centerText={`${(stats.fatLoss * 1000).toFixed(0)}g`}
+            icon={Flame}
+            showPercentage={false}
           />
         </div>
       </CardContent>
