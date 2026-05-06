@@ -1,0 +1,121 @@
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { db } from "@/lib/db";
+import { useMemo } from "react";
+import { Calendar as CalendarIcon } from "lucide-react";
+
+export function YearCalendar() {
+  const dayStatuses = db.getDayStatuses();
+
+  const calendarData = useMemo(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const months = [];
+
+    for (let month = 0; month < 12; month++) {
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startDayOfWeek = firstDay.getDay();
+
+      const days = [];
+      
+      for (let i = 0; i < startDayOfWeek; i++) {
+        days.push(null);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split("T")[0];
+        const status = dayStatuses.find((s) => s.date === dateStr);
+        const isPast = date <= today;
+        
+        days.push({
+          day,
+          date: dateStr,
+          classification: status?.classification || null,
+          isPast,
+        });
+      }
+
+      months.push({
+        name: firstDay.toLocaleDateString("nl-NL", { month: "long" }),
+        days,
+      });
+    }
+
+    return months;
+  }, [dayStatuses]);
+
+  const getColorClass = (classification: string | null, isPast: boolean) => {
+    if (!classification) {
+      return isPast ? "bg-muted/50 text-muted-foreground" : "bg-background border border-border";
+    }
+    switch (classification) {
+      case "green":
+        return "bg-green-500 text-white font-semibold";
+      case "red":
+        return "bg-red-500 text-white font-semibold";
+      case "joker":
+        return "bg-amber-500 text-white font-semibold";
+      default:
+        return "bg-muted";
+    }
+  };
+
+  return (
+    <Card className="border-2">
+      <CardHeader>
+        <CardTitle className="text-2xl flex items-center gap-2">
+          <CalendarIcon className="w-6 h-6 text-primary" />
+          Jaaroverzicht {new Date().getFullYear()}
+        </CardTitle>
+        <CardDescription>
+          <span className="inline-flex items-center gap-4">
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 bg-green-500 rounded"></span>
+              Groen (deficit)
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 bg-red-500 rounded"></span>
+              Rood (geen deficit)
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 bg-amber-500 rounded"></span>
+              Joker (carb load)
+            </span>
+          </span>
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {calendarData.map((month, monthIndex) => (
+            <div key={monthIndex} className="space-y-2">
+              <h3 className="font-semibold text-center capitalize">{month.name}</h3>
+              <div className="grid grid-cols-7 gap-1">
+                {["Z", "M", "D", "W", "D", "V", "Z"].map((day, i) => (
+                  <div key={i} className="text-center text-xs font-medium text-muted-foreground">
+                    {day}
+                  </div>
+                ))}
+                {month.days.map((day, dayIndex) => (
+                  <div
+                    key={dayIndex}
+                    className={`aspect-square flex items-center justify-center text-xs rounded ${
+                      day
+                        ? getColorClass(day.classification, day.isPast)
+                        : ""
+                    }`}
+                  >
+                    {day?.day || ""}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}

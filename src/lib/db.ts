@@ -5,6 +5,17 @@ export interface UserGoals {
   goalBodyFat: number;
   endDate: string;
   createdAt: string;
+  totalJokers: number;
+}
+
+export type DayClassification = "green" | "red" | "joker";
+
+export interface DayStatus {
+  date: string;
+  classification: DayClassification;
+  deficit: number;
+  totalExpenditure: number;
+  totalIntake: number;
 }
 
 export interface DailyWeighIn {
@@ -46,6 +57,7 @@ const STORAGE_KEYS = {
   WEIGH_INS: "afval_queeste_weigh_ins",
   SPORT: "afval_queeste_sport",
   NUTRITION: "afval_queeste_nutrition",
+  DAY_STATUS: "afval_queeste_day_status",
 };
 
 export const db = {
@@ -155,5 +167,75 @@ export const db = {
     };
 
     return avg;
+  },
+
+  saveDayStatus: (status: DayStatus) => {
+    if (typeof window === "undefined") return;
+    const statuses = db.getDayStatuses();
+    const existing = statuses.findIndex((s) => s.date === status.date);
+    if (existing >= 0) {
+      statuses[existing] = status;
+    } else {
+      statuses.push(status);
+    }
+    statuses.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    localStorage.setItem(STORAGE_KEYS.DAY_STATUS, JSON.stringify(statuses));
+  },
+
+  getDayStatuses: (): DayStatus[] => {
+    if (typeof window === "undefined") return [];
+    const data = localStorage.getItem(STORAGE_KEYS.DAY_STATUS);
+    return data ? JSON.parse(data) : [];
+  },
+
+  getDayStatus: (date: string): DayStatus | null => {
+    const statuses = db.getDayStatuses();
+    return statuses.find((s) => s.date === date) || null;
+  },
+
+  getYearStats: () => {
+    const statuses = db.getDayStatuses();
+    const greenDays = statuses.filter((s) => s.classification === "green").length;
+    const redDays = statuses.filter((s) => s.classification === "red").length;
+    const jokersUsed = statuses.filter((s) => s.classification === "joker").length;
+    
+    const goals = db.getGoals();
+    const totalJokers = goals?.totalJokers || 0;
+    const jokersRemaining = totalJokers - jokersUsed;
+
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const endOfYear = new Date(today.getFullYear(), 11, 31);
+    const totalDaysInYear = Math.ceil((endOfYear.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const daysPassed = Math.ceil((today.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    const daysRemaining = totalDaysInYear - daysPassed;
+
+    const allowedRedDays = Math.floor(totalDaysInYear * 0.2);
+    const redDaysBudget = Math.max(0, allowedRedDays - redDays);
+
+    return {
+      greenDays,
+      redDays,
+      jokersUsed,
+      jokersRemaining,
+      totalJokers,
+      daysPassed,
+      daysRemaining,
+      allowedRedDays,
+      redDaysBudget,
+      totalDaysInYear,
+    };
+  },
+
+  getTotalDeficitNeeded: (): number | null => {
+    const goals = db.getGoals();
+    if (!goals) return null;
+    const weightToLose = goals.startWeight - goals.goalWeight;
+    return weightToLose * 7700;
+  },
+
+  getTotalDeficitAchieved: (): number => {
+    const statuses = db.getDayStatuses();
+    return statuses.reduce((sum, s) => sum + Math.max(0, s.deficit), 0);
   },
 };
