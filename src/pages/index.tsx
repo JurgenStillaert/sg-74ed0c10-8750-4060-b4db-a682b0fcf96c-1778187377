@@ -5,6 +5,9 @@ import { SEO } from "@/components/SEO";
 import { GoalSetup } from "@/components/GoalSetup";
 import { DailyWeighIn } from "@/components/DailyWeighIn";
 import { WeighInHistory } from "@/components/WeighInHistory";
+import { SportLogger } from "@/components/SportLogger";
+import { NutritionLogger } from "@/components/NutritionLogger";
+import { DailyStats } from "@/components/DailyStats";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -86,6 +89,17 @@ export default function Home() {
           <div key={refreshKey}>
             <WeighInHistory />
           </div>
+
+          {todayWeighIn && (
+            <>
+              <div className="grid md:grid-cols-2 gap-6">
+                <SportLogger />
+                <NutritionLogger />
+              </div>
+
+              <DailyStats />
+            </>
+          )}
         </div>
       </div>
     </>
