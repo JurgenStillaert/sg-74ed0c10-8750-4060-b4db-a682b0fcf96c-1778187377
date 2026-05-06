@@ -9,11 +9,6 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      fontFamily: {
-        display: ["Archivo Black", "system-ui", "sans-serif"],
-        body: ["Rubik", "system-ui", "sans-serif"],
-        sans: ["Rubik", "system-ui", "sans-serif"],
-      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
@@ -60,6 +55,19 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      fontFamily: {
+        display: ["Archivo Black", "system-ui", "sans-serif"],
+        sans: ["Rubik", "system-ui", "sans-serif"],
+      },
+      keyframes: {
+        shimmer: {
+          "0%, 100%": { backgroundPosition: "0% 50%" },
+          "50%": { backgroundPosition: "100% 50%" },
+        },
+      },
+      animation: {
+        shimmer: "shimmer 3s ease-in-out infinite",
       },
     },
   },

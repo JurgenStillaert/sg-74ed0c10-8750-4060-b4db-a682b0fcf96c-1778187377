@@ -9,6 +9,8 @@ import { SportLogger } from "@/components/SportLogger";
 import { NutritionLogger } from "@/components/NutritionLogger";
 import { DailyStats } from "@/components/DailyStats";
 import { ProgressCharts } from "@/components/ProgressCharts";
+import { Achievements } from "@/components/Achievements";
+import { ProgressRings } from "@/components/ProgressRings";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -91,8 +93,12 @@ export default function Home() {
             <WeighInHistory />
           </div>
 
+          <Achievements />
+
           {todayWeighIn && (
             <>
+              <ProgressRings />
+
               <div className="grid md:grid-cols-2 gap-6">
                 <SportLogger />
                 <NutritionLogger />
