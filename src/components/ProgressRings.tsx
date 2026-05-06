@@ -116,12 +116,12 @@ export function ProgressRings() {
             showPercentage={false}
           />
           <ProgressRing
-            value={stats.fatLoss * 1000}
+            value={stats.estimatedFatLoss * 1000}
             max={fatLossGoal * 1000}
             color="text-accent"
             label="Vet Verloren"
-            sublabel={`${(stats.fatLoss * 1000).toFixed(0)}g / ${(fatLossGoal * 1000).toFixed(0)}g`}
-            centerText={`${(stats.fatLoss * 1000).toFixed(0)}g`}
+            sublabel={`${(stats.estimatedFatLoss * 1000).toFixed(0)}g / ${(fatLossGoal * 1000).toFixed(0)}g`}
+            centerText={`${(stats.estimatedFatLoss * 1000).toFixed(0)}g`}
             icon={Flame}
             showPercentage={false}
           />
