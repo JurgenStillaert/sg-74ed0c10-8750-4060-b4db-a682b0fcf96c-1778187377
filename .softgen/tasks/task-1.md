@@ -1,6 +1,6 @@
 ---
 title: Doel instellen & database schema
-status: in_progress
+status: done
 priority: urgent
 type: feature
 tags: [setup, database, form]
