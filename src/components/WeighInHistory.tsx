@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { db } from "@/lib/db";
-import { TrendingDown, TrendingUp, Minus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { db, DailyWeighIn } from "@/lib/db";
+import { TrendingDown, TrendingUp, Minus, Pencil, Trash2 } from "lucide-react";
 import { useMemo } from "react";
 
 export function WeighInHistory() {
-  const weighIns = db.getWeighIns();
+  const [weighIns, setWeighIns] = useState<DailyWeighIn[]>(db.getWeighIns());
+  const [editingId, setEditingId] = useState<string | null>(null);
   const avg7Days = db.getLast7DaysAverage();
 
   const latestChange = useMemo(() => {
@@ -17,6 +20,21 @@ export function WeighInHistory() {
     const fatDiff = latest.bodyFat - previous.bodyFat;
     return { weightDiff, fatDiff };
   }, [weighIns]);
+
+  const handleDelete = (id: string) => {
+    if (confirm("Weet je zeker dat je deze weging wilt verwijderen?")) {
+      const updated = weighIns.filter((w) => w.id !== id);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("afval_queeste_weigh_ins", JSON.stringify(updated));
+      }
+      setWeighIns(updated);
+      window.location.reload();
+    }
+  };
+
+  const handleEdit = (weighIn: DailyWeighIn) => {
+    setEditingId(weighIn.id);
+  };
 
   if (weighIns.length === 0) {
     return null;
@@ -34,8 +52,30 @@ export function WeighInHistory() {
     <div className="space-y-6">
       <Card className="border-2">
         <CardHeader>
-          <CardTitle className="text-2xl">Laatste weging</CardTitle>
-          <CardDescription>{new Date(latest.date).toLocaleDateString("nl-NL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-2xl">Laatste weging</CardTitle>
+              <CardDescription>{new Date(latest.date).toLocaleDateString("nl-NL", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleEdit(latest)}
+                className="h-9 w-9"
+              >
+                <Pencil className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => handleDelete(latest.id)}
+                className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -112,6 +152,32 @@ export function WeighInHistory() {
             </div>
           </CardContent>
         </Card>
+      )}
+
+      {editingId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setEditingId(null)}>
+          <div className="bg-background p-6 rounded-lg max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-xl font-bold mb-4">Weging bewerken</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Om een weging te corrigeren, verwijder deze en voer een nieuwe in met de juiste waarden.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setEditingId(null)} className="flex-1">
+                Annuleren
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  handleDelete(editingId);
+                  setEditingId(null);
+                }}
+                className="flex-1"
+              >
+                Verwijderen
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

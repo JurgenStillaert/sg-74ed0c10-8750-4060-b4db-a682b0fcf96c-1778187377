@@ -6,14 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { db, SportEntry } from "@/lib/db";
-import { Activity, Plus, X } from "lucide-react";
+import { Activity, Plus, Trash2 } from "lucide-react";
 
 export function SportLogger() {
   const today = new Date().toISOString().split("T")[0];
   const [formData, setFormData] = useState({
     time: "",
     calories: "",
-    description: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [todaySports, setTodaySports] = useState<SportEntry[]>(db.getSportEntries(today));
@@ -37,10 +36,6 @@ export function SportLogger() {
       newErrors.calories = "Vul geldige calorieën in";
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Vul een beschrijving in";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,12 +49,19 @@ export function SportLogger() {
       date: today,
       time: formData.time,
       calories: parseFloat(formData.calories),
-      description: formData.description.trim(),
     };
 
     db.saveSportEntry(entry);
     setTodaySports(db.getSportEntries(today));
-    setFormData({ time: "", calories: "", description: "" });
+    setFormData({ time: "", calories: "" });
+  };
+
+  const handleDelete = (id: string) => {
+    if (typeof window === "undefined") return;
+    const allEntries = db.getSportEntries();
+    const updated = allEntries.filter((e) => e.id !== id);
+    localStorage.setItem("afval_queeste_sport", JSON.stringify(updated));
+    setTodaySports(db.getSportEntries(today));
   };
 
   const totalCalories = todaySports.reduce((sum, s) => sum + s.calories, 0);
@@ -79,7 +81,7 @@ export function SportLogger() {
       </CardHeader>
       <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="time" className="text-sm font-semibold">Tijd</Label>
               <Input
@@ -105,18 +107,6 @@ export function SportLogger() {
               />
               {errors.calories && <p className="text-sm text-destructive">{errors.calories}</p>}
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="description" className="text-sm font-semibold">Beschrijving</Label>
-              <Input
-                id="description"
-                placeholder="Hardlopen, zwemmen, fitness..."
-                value={formData.description}
-                onChange={(e) => handleChange("description", e.target.value)}
-                className={errors.description ? "border-destructive" : ""}
-              />
-              {errors.description && <p className="text-sm text-destructive">{errors.description}</p>}
-            </div>
           </div>
 
           <Button type="submit" className="gap-2">
@@ -137,10 +127,17 @@ export function SportLogger() {
               {todaySports.map((sport) => (
                 <div key={sport.id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                   <div className="flex-1">
-                    <p className="font-medium">{sport.description}</p>
-                    <p className="text-sm text-muted-foreground">{sport.time}</p>
+                    <p className="font-medium">{sport.time}</p>
+                    <p className="text-lg font-bold tabular-nums">{sport.calories} kcal</p>
                   </div>
-                  <p className="font-bold tabular-nums">{sport.calories} kcal</p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(sport.id)}
+                    className="h-9 w-9 hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               ))}
             </div>

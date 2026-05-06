@@ -21,7 +21,6 @@ export interface SportEntry {
   date: string;
   time: string;
   calories: number;
-  description: string;
 }
 
 export interface NutritionEntry {
