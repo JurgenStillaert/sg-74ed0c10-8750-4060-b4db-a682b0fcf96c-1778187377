@@ -14,7 +14,7 @@ export function ProgressCharts() {
     if (!goals || weighIns.length === 0) return null;
 
     const startDate = new Date(weighIns[0].date);
-    const endDate = new Date(goals.targetDate);
+    const endDate = new Date(goals.endDate);
     const today = new Date();
 
     const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -95,7 +95,7 @@ export function ProgressCharts() {
     return null;
   }
 
-  const targetDate = new Date(goals.targetDate);
+  const targetDate = new Date(goals.endDate);
   const daysToTarget = Math.ceil((targetDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
 
   return (
