@@ -76,7 +76,7 @@ export const db = {
   saveWeighIn: (weighIn: DailyWeighIn) => {
     if (typeof window === "undefined") return;
     const weighIns = db.getWeighIns();
-    const existing = weighIns.findIndex((w) => w.date === weighIn.date);
+    const existing = weighIns.findIndex((w) => w.date.split("T")[0] === weighIn.date.split("T")[0]);
     if (existing >= 0) {
       weighIns[existing] = weighIn;
     } else {
@@ -108,13 +108,13 @@ export const db = {
     if (typeof window === "undefined") return [];
     const data = localStorage.getItem(STORAGE_KEYS.SPORT);
     const entries: SportEntry[] = data ? JSON.parse(data) : [];
-    return date ? entries.filter((e) => e.date === date) : entries;
+    return date ? entries.filter((e) => e.date.split("T")[0] === date.split("T")[0]) : entries;
   },
 
   saveNutrition: (nutrition: NutritionEntry) => {
     if (typeof window === "undefined") return;
     const entries = db.getNutritionEntries();
-    const existing = entries.findIndex((n) => n.date === nutrition.date);
+    const existing = entries.findIndex((n) => n.date.split("T")[0] === nutrition.date.split("T")[0]);
     if (existing >= 0) {
       entries[existing] = nutrition;
     } else {
@@ -131,9 +131,9 @@ export const db = {
   },
 
   calculateDailyStats: (date: string): DailyCalculations | null => {
-    const weighIn = db.getWeighIns().find((w) => w.date === date);
+    const weighIn = db.getWeighIns().find((w) => w.date.split("T")[0] === date.split("T")[0]);
     const sportEntries = db.getSportEntries(date);
-    const nutrition = db.getNutritionEntries().find((n) => n.date === date);
+    const nutrition = db.getNutritionEntries().find((n) => n.date.split("T")[0] === date.split("T")[0]);
 
     if (!weighIn) return null;
 
@@ -172,7 +172,7 @@ export const db = {
   saveDayStatus: (status: DayStatus) => {
     if (typeof window === "undefined") return;
     const statuses = db.getDayStatuses();
-    const existing = statuses.findIndex((s) => s.date === status.date);
+    const existing = statuses.findIndex((s) => s.date.split("T")[0] === status.date.split("T")[0]);
     if (existing >= 0) {
       statuses[existing] = status;
     } else {
@@ -190,7 +190,7 @@ export const db = {
 
   getDayStatus: (date: string): DayStatus | null => {
     const statuses = db.getDayStatuses();
-    return statuses.find((s) => s.date === date) || null;
+    return statuses.find((s) => s.date.split("T")[0] === date.split("T")[0]) || null;
   },
 
   getYearStats: () => {
