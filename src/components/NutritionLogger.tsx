@@ -92,6 +92,7 @@ export function NutritionLogger({ selectedDate, onUpdate }: NutritionLoggerProps
       fat: parseFloat(formData.fat),
       carbs: parseFloat(formData.carbs),
       protein: parseFloat(formData.protein),
+      source: "manual",
     };
 
     db.saveNutrition(entry);
