@@ -41,6 +41,8 @@ export interface NutritionEntry {
   fat: number;
   carbs: number;
   protein: number;
+  source?: "manual" | "myfitnesspal";
+  syncedAt?: string;
 }
 
 export interface DailyCalculations {
