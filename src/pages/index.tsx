@@ -47,7 +47,7 @@ export default function Home() {
     }
   };
 
-  const weighIn = db.getWeighIns().find((w) => w.date === currentDate);
+  const weighIn = db.getWeighIns().find((w) => w.date.split("T")[0] === currentDate);
 
   if (hasGoals === null) {
     return null;
