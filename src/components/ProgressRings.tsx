@@ -75,10 +75,10 @@ function ProgressRing({ value, max, color, label, sublabel, centerText, icon: Ic
   );
 }
 
-export function ProgressRings() {
-  const today = new Date().toISOString().split("T")[0];
+export function ProgressRings({ selectedDate }: ProgressRingsProps) {
+  const targetDate = selectedDate || new Date().toISOString().split("T")[0];
   const goals = db.getGoals();
-  const stats = db.calculateDailyStats(today);
+  const stats = db.calculateDailyStats(targetDate);
 
   if (!goals || !stats) {
     return null;
