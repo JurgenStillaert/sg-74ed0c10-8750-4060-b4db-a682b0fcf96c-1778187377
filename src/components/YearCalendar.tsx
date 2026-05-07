@@ -9,12 +9,10 @@ export function YearCalendar() {
   const dayStatuses = db.getDayStatuses();
 
   const handleDayClick = (dateStr: string) => {
-    const stats = db.calculateDailyStats(dateStr);
-    if (!stats) return;
-
     const currentStatus = db.getDayStatus(dateStr);
     let newClassification: DayClassification | null = null;
 
+    // Cycle through: null -> green -> red -> joker -> null
     if (!currentStatus || currentStatus.classification === null) {
       newClassification = "green";
     } else if (currentStatus.classification === "green") {
@@ -22,24 +20,29 @@ export function YearCalendar() {
     } else if (currentStatus.classification === "red") {
       newClassification = "joker";
     } else {
+      // joker -> remove (back to null)
       newClassification = null;
     }
 
     if (newClassification === null) {
+      // Remove the status
       const statuses = db.getDayStatuses().filter((s) => s.date !== dateStr);
       if (typeof window !== "undefined") {
         localStorage.setItem("afval_queeste_day_status", JSON.stringify(statuses));
       }
     } else {
+      // Save the new classification (with default values for deficit data)
+      const stats = db.calculateDailyStats(dateStr);
       db.saveDayStatus({
         date: dateStr,
         classification: newClassification,
-        deficit: stats.deficit,
-        totalExpenditure: stats.totalExpenditure,
-        totalIntake: stats.totalIntake,
+        deficit: stats?.deficit || 0,
+        totalExpenditure: stats?.totalExpenditure || 0,
+        totalIntake: stats?.totalIntake || 0,
       });
     }
 
+    // Force refresh to show the change
     window.location.reload();
   };
 
