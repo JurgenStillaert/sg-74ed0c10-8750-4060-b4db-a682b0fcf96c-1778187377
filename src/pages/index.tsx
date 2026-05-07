@@ -140,7 +140,7 @@ export default function Home() {
           <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
             <h1 className="text-4xl font-display text-primary">Kalender Overzicht</h1>
             <YearStats />
-            <YearCalendar />
+            <YearCalendar onUpdate={() => setRefreshKey((prev) => prev + 1)} />
           </div>
         )}
       </div>

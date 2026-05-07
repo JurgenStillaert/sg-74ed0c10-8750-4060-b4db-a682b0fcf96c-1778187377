@@ -1,11 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { db, DayClassification } from "@/lib/db";
 import { useMemo } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 
-export function YearCalendar() {
+interface YearCalendarProps {
+  onUpdate?: () => void;
+}
+
+export function YearCalendar({ onUpdate }: YearCalendarProps) {
+  const [refreshKey, setRefreshKey] = useState(0);
   const dayStatuses = db.getDayStatuses();
 
   const handleDayClick = (dateStr: string) => {
@@ -42,8 +48,12 @@ export function YearCalendar() {
       });
     }
 
-    // Force refresh to show the change
-    window.location.reload();
+    // Trigger local re-render
+    setRefreshKey(prev => prev + 1);
+    // Notify parent if callback provided
+    if (onUpdate) {
+      onUpdate();
+    }
   };
 
   const calendarData = useMemo(() => {
@@ -84,9 +94,9 @@ export function YearCalendar() {
     }
 
     return months;
-  }, [dayStatuses]);
+  }, [dayStatuses, refreshKey]);
 
-  const getColorClass = (classification: string | null, isPast: boolean) => {
+  const getColorClass = (classification: DayClassification | null, isPast: boolean): string => {
     if (!classification) {
       return isPast ? "bg-muted/50 text-muted-foreground" : "bg-background border border-border";
     }
