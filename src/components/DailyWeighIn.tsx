@@ -10,10 +10,10 @@ import { Scale, Droplet, Flame, Dumbbell } from "lucide-react";
 
 interface DailyWeighInProps {
   onComplete: () => void;
+  selectedDate: string;
 }
 
-export function DailyWeighIn({ onComplete }: DailyWeighInProps) {
-  const today = new Date().toISOString().split("T")[0];
+export function DailyWeighIn({ onComplete, selectedDate }: DailyWeighInProps) {
   const [formData, setFormData] = useState({
     weight: "",
     bodyFat: "",
@@ -64,7 +64,7 @@ export function DailyWeighIn({ onComplete }: DailyWeighInProps) {
 
     const weighIn: WeighInData = {
       id: `weighin_${Date.now()}`,
-      date: today,
+      date: new Date(selectedDate).toISOString(),
       weight: parseFloat(formData.weight),
       bodyFat: parseFloat(formData.bodyFat),
       bmr: parseFloat(formData.bmr),

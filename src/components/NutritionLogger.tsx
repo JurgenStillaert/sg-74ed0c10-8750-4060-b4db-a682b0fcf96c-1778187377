@@ -9,8 +9,12 @@ import { db, NutritionEntry } from "@/lib/db";
 import { Apple, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-export function NutritionLogger() {
-  const today = new Date().toISOString().split("T")[0];
+interface NutritionLoggerProps {
+  selectedDate: string;
+  onUpdate: () => void;
+}
+
+export function NutritionLogger({ selectedDate, onUpdate }: NutritionLoggerProps) {
   const [formData, setFormData] = useState({
     calories: "",
     fat: "",
@@ -21,7 +25,7 @@ export function NutritionLogger() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const existing = db.getNutritionEntries().find((n) => n.date === today);
+    const existing = db.getNutritionEntries().find((n) => n.date === selectedDate);
     if (existing) {
       setFormData({
         calories: existing.calories.toString(),
@@ -30,8 +34,16 @@ export function NutritionLogger() {
         protein: existing.protein.toString(),
       });
       setSaved(true);
+    } else {
+      setFormData({
+        calories: "",
+        fat: "",
+        carbs: "",
+        protein: "",
+      });
+      setSaved(false);
     }
-  }, [today]);
+  }, [selectedDate]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -75,7 +87,7 @@ export function NutritionLogger() {
 
     const entry: NutritionEntry = {
       id: `nutrition_${Date.now()}`,
-      date: today,
+      date: selectedDate,
       calories: parseFloat(formData.calories),
       fat: parseFloat(formData.fat),
       carbs: parseFloat(formData.carbs),
@@ -84,9 +96,10 @@ export function NutritionLogger() {
 
     db.saveNutrition(entry);
     setSaved(true);
+    onUpdate();
   };
 
-  const weighIn = db.getWeighIns().find((w) => w.date === today);
+  const weighIn = db.getWeighIns().find((w) => w.date === selectedDate);
   const protein = parseFloat(formData.protein);
   const proteinPerKg = weighIn && protein > 0 ? protein / weighIn.weight : 0;
   const proteinWarning = weighIn && proteinPerKg > 0 && proteinPerKg < 1.6;

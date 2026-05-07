@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,14 +8,23 @@ import { Button } from "@/components/ui/button";
 import { db, SportEntry } from "@/lib/db";
 import { Activity, Plus, Trash2 } from "lucide-react";
 
-export function SportLogger() {
-  const today = new Date().toISOString().split("T")[0];
+interface SportLoggerProps {
+  selectedDate: string;
+  onUpdate: () => void;
+}
+
+export function SportLogger({ selectedDate, onUpdate }: SportLoggerProps) {
   const [formData, setFormData] = useState({
     time: "",
     calories: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [todaySports, setTodaySports] = useState<SportEntry[]>(db.getSportEntries(today));
+  const [todaySports, setTodaySports] = useState<SportEntry[]>(db.getSportEntries(selectedDate));
+
+  // Update when selectedDate changes
+  useEffect(() => {
+    setTodaySports(db.getSportEntries(selectedDate));
+  }, [selectedDate]);
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -46,14 +55,15 @@ export function SportLogger() {
 
     const entry: SportEntry = {
       id: `sport_${Date.now()}`,
-      date: today,
+      date: selectedDate,
       time: formData.time,
       calories: parseFloat(formData.calories),
     };
 
     db.saveSportEntry(entry);
-    setTodaySports(db.getSportEntries(today));
+    setTodaySports(db.getSportEntries(selectedDate));
     setFormData({ time: "", calories: "" });
+    onUpdate();
   };
 
   const handleDelete = (id: string) => {
@@ -61,7 +71,8 @@ export function SportLogger() {
     const allEntries = db.getSportEntries();
     const updated = allEntries.filter((e) => e.id !== id);
     localStorage.setItem("afval_queeste_sport", JSON.stringify(updated));
-    setTodaySports(db.getSportEntries(today));
+    setTodaySports(db.getSportEntries(selectedDate));
+    onUpdate();
   };
 
   const totalCalories = todaySports.reduce((sum, s) => sum + s.calories, 0);

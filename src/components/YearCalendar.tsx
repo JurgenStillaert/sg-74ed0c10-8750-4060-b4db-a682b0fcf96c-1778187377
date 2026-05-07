@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { db } from "@/lib/db";
+import { db, DayClassification } from "@/lib/db";
 import { useMemo } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 
