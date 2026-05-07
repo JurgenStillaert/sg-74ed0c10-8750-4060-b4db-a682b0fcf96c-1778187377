@@ -4,7 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { db } from "@/lib/db";
 import { TrendingDown, TrendingUp, Flame, Target } from "lucide-react";
 
-export function DailyStats() {
+interface DailyStatsProps {
+  selectedDate?: string;
+}
+
+export function DailyStats({ selectedDate }: DailyStatsProps) {
   const today = new Date().toISOString().split("T")[0];
   const stats = db.calculateDailyStats(today);
 

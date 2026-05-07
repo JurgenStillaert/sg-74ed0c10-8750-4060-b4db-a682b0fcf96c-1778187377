@@ -15,6 +15,10 @@ interface RingProps {
   showPercentage?: boolean;
 }
 
+interface ProgressRingsProps {
+  selectedDate?: string;
+}
+
 function ProgressRing({ value, max, color, label, sublabel, centerText, icon: Icon, showPercentage = true }: RingProps) {
   const percentage = Math.min((value / max) * 100, 100);
   const radius = 45;
