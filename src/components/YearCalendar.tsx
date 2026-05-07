@@ -57,43 +57,82 @@ export function YearCalendar({ onUpdate }: YearCalendarProps) {
   };
 
   const calendarData = useMemo(() => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const months = [];
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    
+    const getWeekNumber = (date: Date): number => {
+      const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+      const dayNum = d.getUTCDay() || 7;
+      d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+      const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+      return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+    };
 
-    for (let month = 0; month < 12; month++) {
-      const firstDay = new Date(year, month, 1);
-      const lastDay = new Date(year, month + 1, 0);
-      const daysInMonth = lastDay.getDate();
-      const startDayOfWeek = firstDay.getDay();
-
-      const days = [];
+    const generateCalendar = () => {
+      const monthsData = [];
       
-      for (let i = 0; i < startDayOfWeek; i++) {
-        days.push(null);
-      }
-
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(year, month, day);
-        const dateStr = date.toISOString().split("T")[0];
-        const status = dayStatuses.find((s) => s.date === dateStr);
-        const isPast = date <= today;
+      for (let month = 0; month < 12; month++) {
+        const firstDay = new Date(currentYear, month, 1);
+        const lastDay = new Date(currentYear, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
         
-        days.push({
-          day,
-          date: dateStr,
-          classification: status?.classification || null,
-          isPast,
+        // Get day of week (0=Sunday, 1=Monday, ..., 6=Saturday)
+        // Adjust so Monday=0, Sunday=6
+        let firstDayOfWeek = firstDay.getDay() - 1;
+        if (firstDayOfWeek < 0) firstDayOfWeek = 6;
+        
+        const weeks: Array<{ weekNumber: number; days: Array<{ date: string; day: number; classification: DayClassification | null; isPast: boolean } | null> }> = [];
+        let currentWeek: Array<{ date: string; day: number; classification: DayClassification | null; isPast: boolean } | null> = [];
+        let currentWeekNumber = 0;
+        
+        // Fill in empty days before month starts
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          currentWeek.push(null);
+        }
+        
+        // Fill in the days of the month
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(currentYear, month, day);
+          const dateStr = date.toISOString().split("T")[0];
+          const isPast = date <= now;
+          const status = dayStatuses.find((s) => s.date === dateStr);
+          
+          if (currentWeek.length === 0) {
+            currentWeekNumber = getWeekNumber(date);
+          }
+          
+          currentWeek.push({
+            date: dateStr,
+            day,
+            classification: status?.classification || null,
+            isPast,
+          });
+          
+          // If week is complete (7 days), start new week
+          if (currentWeek.length === 7) {
+            weeks.push({ weekNumber: currentWeekNumber, days: [...currentWeek] });
+            currentWeek = [];
+          }
+        }
+        
+        // Fill in remaining days of last week
+        if (currentWeek.length > 0) {
+          while (currentWeek.length < 7) {
+            currentWeek.push(null);
+          }
+          weeks.push({ weekNumber: currentWeekNumber, days: currentWeek });
+        }
+        
+        monthsData.push({
+          name: new Date(currentYear, month).toLocaleDateString("nl-NL", { month: "long" }),
+          weeks,
         });
       }
+      
+      return monthsData;
+    };
 
-      months.push({
-        name: firstDay.toLocaleDateString("nl-NL", { month: "long" }),
-        days,
-      });
-    }
-
-    return months;
+    return generateCalendar();
   }, [dayStatuses, refreshKey]);
 
   const getColorClass = (classification: DayClassification | null, isPast: boolean): string => {
@@ -137,27 +176,39 @@ export function YearCalendar({ onUpdate }: YearCalendarProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {calendarData.map((month, monthIndex) => (
             <div key={monthIndex} className="space-y-2">
-              <h3 className="font-semibold text-center capitalize">{month.name}</h3>
-              <div className="grid grid-cols-7 gap-1">
-                {["Z", "M", "D", "W", "D", "V", "Z"].map((day, i) => (
-                  <div key={i} className="text-center text-xs font-medium text-muted-foreground">
-                    {day}
-                  </div>
-                ))}
-                {month.days.map((day, dayIndex) => (
-                  <div
-                    key={dayIndex}
-                    className={`aspect-square flex items-center justify-center text-xs rounded transition-colors ${
-                      day
-                        ? `${getColorClass(day.classification, day.isPast)} ${day.isPast ? "cursor-pointer hover:ring-2 hover:ring-primary" : ""}`
-                        : ""
-                    }`}
-                    onClick={() => day?.isPast && handleDayClick(day.date)}
-                  >
-                    {day?.day || ""}
+              <h3 className="font-semibold text-sm capitalize text-center">{month.name}</h3>
+              <div className="border rounded-lg p-2">
+                <div className="grid grid-cols-8 gap-1 mb-2">
+                  <div className="text-xs font-medium text-center text-muted-foreground">W</div>
+                  <div className="text-xs font-medium text-center">Ma</div>
+                  <div className="text-xs font-medium text-center">Di</div>
+                  <div className="text-xs font-medium text-center">Wo</div>
+                  <div className="text-xs font-medium text-center">Do</div>
+                  <div className="text-xs font-medium text-center">Vr</div>
+                  <div className="text-xs font-medium text-center">Za</div>
+                  <div className="text-xs font-medium text-center">Zo</div>
+                </div>
+                {month.weeks.map((week, weekIndex) => (
+                  <div key={weekIndex} className="grid grid-cols-8 gap-1">
+                    <div className="text-xs font-medium text-center text-muted-foreground flex items-center justify-center">
+                      {week.weekNumber}
+                    </div>
+                    {week.days.map((day, dayIndex) => (
+                      <div
+                        key={dayIndex}
+                        className={`aspect-square flex items-center justify-center text-xs rounded transition-colors ${
+                          day
+                            ? `${getColorClass(day.classification, day.isPast)} ${day.isPast ? "cursor-pointer hover:ring-2 hover:ring-primary" : ""}`
+                            : ""
+                        }`}
+                        onClick={() => day?.isPast && handleDayClick(day.date)}
+                      >
+                        {day?.day || ""}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
