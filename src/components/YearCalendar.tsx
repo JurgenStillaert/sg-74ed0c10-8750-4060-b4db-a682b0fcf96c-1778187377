@@ -8,6 +8,41 @@ import { Calendar as CalendarIcon } from "lucide-react";
 export function YearCalendar() {
   const dayStatuses = db.getDayStatuses();
 
+  const handleDayClick = (dateStr: string) => {
+    const stats = db.calculateDailyStats(dateStr);
+    if (!stats) return;
+
+    const currentStatus = db.getDayStatus(dateStr);
+    let newClassification: DayClassification | null = null;
+
+    if (!currentStatus || currentStatus.classification === null) {
+      newClassification = "green";
+    } else if (currentStatus.classification === "green") {
+      newClassification = "red";
+    } else if (currentStatus.classification === "red") {
+      newClassification = "joker";
+    } else {
+      newClassification = null;
+    }
+
+    if (newClassification === null) {
+      const statuses = db.getDayStatuses().filter((s) => s.date !== dateStr);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("afval_queeste_day_status", JSON.stringify(statuses));
+      }
+    } else {
+      db.saveDayStatus({
+        date: dateStr,
+        classification: newClassification,
+        deficit: stats.deficit,
+        totalExpenditure: stats.totalExpenditure,
+        totalIntake: stats.totalIntake,
+      });
+    }
+
+    window.location.reload();
+  };
+
   const calendarData = useMemo(() => {
     const today = new Date();
     const year = today.getFullYear();
@@ -102,11 +137,12 @@ export function YearCalendar() {
                 {month.days.map((day, dayIndex) => (
                   <div
                     key={dayIndex}
-                    className={`aspect-square flex items-center justify-center text-xs rounded ${
+                    className={`aspect-square flex items-center justify-center text-xs rounded transition-colors ${
                       day
-                        ? getColorClass(day.classification, day.isPast)
+                        ? `${getColorClass(day.classification, day.isPast)} ${day.isPast ? "cursor-pointer hover:ring-2 hover:ring-primary" : ""}`
                         : ""
                     }`}
+                    onClick={() => day?.isPast && handleDayClick(day.date)}
                   >
                     {day?.day || ""}
                   </div>

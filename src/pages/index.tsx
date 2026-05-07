@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
+import { Navigation, NavigationTab } from "@/components/Navigation";
+import { DayNavigator } from "@/components/DayNavigator";
+import { DayTabs } from "@/components/DayTabs";
 import { GoalSetup } from "@/components/GoalSetup";
 import { DailyWeighIn } from "@/components/DailyWeighIn";
 import { WeighInHistory } from "@/components/WeighInHistory";
@@ -11,16 +15,15 @@ import { DailyStats } from "@/components/DailyStats";
 import { ProgressCharts } from "@/components/ProgressCharts";
 import { Achievements } from "@/components/Achievements";
 import { ProgressRings } from "@/components/ProgressRings";
-import { DayClassifier } from "@/components/DayClassifier";
 import { YearCalendar } from "@/components/YearCalendar";
 import { YearStats } from "@/components/YearStats";
 import { db } from "@/lib/db";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export default function Home() {
+  const router = useRouter();
   const [hasGoals, setHasGoals] = useState<boolean | null>(null);
-  const [showWeighInForm, setShowWeighInForm] = useState(false);
+  const [currentTab, setCurrentTab] = useState<NavigationTab>("game");
+  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
@@ -32,13 +35,19 @@ export default function Home() {
     setHasGoals(true);
   };
 
-  const handleWeighInComplete = () => {
-    setShowWeighInForm(false);
+  const handleDataChange = () => {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const today = new Date().toISOString().split("T")[0];
-  const todayWeighIn = db.getWeighIns().find((w) => w.date === today);
+  const handleTabChange = (tab: NavigationTab) => {
+    if (tab === "admin") {
+      router.push("/admin");
+    } else {
+      setCurrentTab(tab);
+    }
+  };
+
+  const weighIn = db.getWeighIns().find((w) => w.date === currentDate);
 
   if (hasGoals === null) {
     return null;
@@ -59,66 +68,81 @@ export default function Home() {
   return (
     <>
       <SEO
-        title="Dashboard - Afval-Queeste"
+        title="Afval-Queeste - Dashboard"
         description="Volg je dagelijkse voortgang en behaal je doelen"
       />
-      <div className="min-h-screen bg-background p-4 md:p-8">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex items-center justify-between">
+      
+      <Navigation currentTab={currentTab} onTabChange={handleTabChange} />
+
+      <div className="min-h-screen bg-background">
+        {currentTab === "game" && (
+          <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6" key={refreshKey}>
             <h1 className="text-4xl md:text-5xl font-display text-primary">Afval-Queeste</h1>
-            {!todayWeighIn && !showWeighInForm && (
-              <Button
-                onClick={() => setShowWeighInForm(true)}
-                size="lg"
-                className="gap-2"
-              >
-                <Plus className="w-5 h-5" />
-                Nieuwe weging
-              </Button>
-            )}
+            
+            <DayNavigator currentDate={currentDate} onDateChange={setCurrentDate} />
+
+            <DayTabs
+              date={currentDate}
+              hasWeighIn={!!weighIn}
+              weighInContent={
+                <div className="space-y-6">
+                  {weighIn ? (
+                    <div className="bg-accent/10 border-2 border-accent rounded-lg p-6">
+                      <h3 className="text-lg font-semibold mb-2">Weging van {currentDate}</h3>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <p className="text-muted-foreground">Gewicht</p>
+                          <p className="text-xl font-semibold">{weighIn.weight.toFixed(2)} kg</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Vetpercentage</p>
+                          <p className="text-xl font-semibold">{weighIn.bodyFat.toFixed(1)}%</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">BMR</p>
+                          <p className="text-xl font-semibold">{weighIn.bmr.toFixed(0)} kcal</p>
+                        </div>
+                        <div>
+                          <p className="text-muted-foreground">Spiermassa</p>
+                          <p className="text-xl font-semibold">{weighIn.muscleMass.toFixed(1)} kg</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <DailyWeighIn onComplete={handleDataChange} selectedDate={currentDate} />
+                  )}
+                  <WeighInHistory />
+                </div>
+              }
+              sportContent={
+                <SportLogger selectedDate={currentDate} onUpdate={handleDataChange} />
+              }
+              nutritionContent={
+                <NutritionLogger selectedDate={currentDate} onUpdate={handleDataChange} />
+              }
+              statsContent={
+                <div className="space-y-6">
+                  <ProgressRings selectedDate={currentDate} />
+                  <DailyStats selectedDate={currentDate} />
+                </div>
+              }
+            />
+
+            <Achievements />
+
+            <YearStats />
+
+            <ProgressCharts />
           </div>
+        )}
 
-          {showWeighInForm && (
-            <div className="flex justify-center">
-              <DailyWeighIn onComplete={handleWeighInComplete} />
-            </div>
-          )}
-
-          {todayWeighIn && (
-            <div className="bg-accent/10 border-2 border-accent rounded-lg p-6 text-center">
-              <p className="text-lg font-semibold text-accent-foreground">
-                ✓ Je hebt vandaag al gewogen!
-              </p>
-            </div>
-          )}
-
-          <div key={refreshKey}>
-            <WeighInHistory />
+        {currentTab === "calendar" && (
+          <div className="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
+            <h1 className="text-4xl font-display text-primary">Kalender Overzicht</h1>
+            <YearStats />
+            <YearCalendar />
           </div>
-
-          <Achievements />
-
-          <YearStats />
-
-          <YearCalendar />
-
-          {todayWeighIn && (
-            <>
-              <DayClassifier date={today} onClassify={() => setRefreshKey((prev) => prev + 1)} />
-
-              <ProgressRings />
-
-              <div className="grid md:grid-cols-2 gap-6">
-                <SportLogger />
-                <NutritionLogger />
-              </div>
-
-              <DailyStats />
-            </>
-          )}
-
-          <ProgressCharts />
-        </div>
+        )}
       </div>
     </>
   );
