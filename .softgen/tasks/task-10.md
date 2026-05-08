@@ -1,6 +1,6 @@
 ---
 title: Elk spel moet een begindatum hebben
-status: in_progress
+status: done
 priority: high
 type: feature
 created_by: human
