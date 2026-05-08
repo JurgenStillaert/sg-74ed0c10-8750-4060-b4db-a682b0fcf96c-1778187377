@@ -84,6 +84,9 @@ export const db = {
     }
     weighIns.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     localStorage.setItem(STORAGE_KEYS.WEIGH_INS, JSON.stringify(weighIns));
+    
+    // Update DayStatus after saving weigh-in
+    db.updateDayStatus(weighIn.date);
   },
 
   getWeighIns: (): DailyWeighIn[] => {
@@ -102,6 +105,9 @@ export const db = {
       return a.time.localeCompare(b.time);
     });
     localStorage.setItem(STORAGE_KEYS.SPORT, JSON.stringify(entries));
+    
+    // Update DayStatus after saving sport entry
+    db.updateDayStatus(entry.date);
   },
 
   getSportEntries: (date?: string): SportEntry[] => {
@@ -122,6 +128,9 @@ export const db = {
     }
     entries.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     localStorage.setItem(STORAGE_KEYS.NUTRITION, JSON.stringify(entries));
+    
+    // Update DayStatus after saving nutrition
+    db.updateDayStatus(nutrition.date);
   },
 
   getNutritionEntries: (): NutritionEntry[] => {
@@ -247,5 +256,28 @@ export const db = {
   getTotalDeficitAchieved: (): number => {
     const statuses = db.getDayStatuses();
     return statuses.reduce((sum, s) => sum + Math.max(0, s.deficit), 0);
+  },
+
+  updateDayStatus: (date: string) => {
+    if (typeof window === "undefined") return;
+    
+    const stats = db.calculateDailyStats(date);
+    if (!stats) return; // No weigh-in for this day yet
+    
+    // Auto-classify the day based on deficit
+    let classification: DayClassification = "green";
+    if (stats.deficit < 0) {
+      classification = "red";
+    }
+    
+    const dayStatus: DayStatus = {
+      date,
+      classification,
+      deficit: stats.deficit,
+      totalExpenditure: stats.totalExpenditure,
+      totalIntake: stats.totalIntake,
+    };
+    
+    db.saveDayStatus(dayStatus);
   },
 };

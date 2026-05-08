@@ -1,6 +1,6 @@
 ---
 title: Verbruikte calorie per dag wordt niet geteld
-status: todo
+status: done
 priority: urgent
 type: bug
 created_by: human
@@ -12,3 +12,8 @@ position: 7
 Ik heb voeding ingevuld en er verschijnt onder statistieken ook dat ik een deficit heb van 1420kcal.
 Maar in de sectie "Totaal Deficit Voortgang" wordt dit niet afgeteld van totale nog te verbranden kcal en er verschijnt niets in de grafiek.
 Ook verandert er niets in "Cumulatief Calorie Deficit"
+
+## Checklist
+- [x] Identificeer waarom deficit niet wordt opgeslagen
+- [x] Implementeer automatische DayStatus updates
+- [x] Test dat deficit nu correct wordt getoond in grafieken
