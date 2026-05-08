@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { SEO } from "@/components/SEO";
 import { Navigation, NavigationTab } from "@/components/Navigation";
+import { GameTabs, GameTab } from "@/components/GameTabs";
 import { DayNavigator } from "@/components/DayNavigator";
 import { DayTabs } from "@/components/DayTabs";
 import { GoalSetup } from "@/components/GoalSetup";
@@ -23,6 +24,7 @@ export default function Home() {
   const router = useRouter();
   const [hasGoals, setHasGoals] = useState<boolean | null>(null);
   const [currentTab, setCurrentTab] = useState<NavigationTab>("game");
+  const [gameTab, setGameTab] = useState<GameTab>("achievements");
   const [currentDate, setCurrentDate] = useState(new Date().toISOString().split("T")[0]);
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -128,11 +130,19 @@ export default function Home() {
               }
             />
 
-            <Achievements />
+            <GameTabs currentTab={gameTab} onTabChange={setGameTab} />
 
-            <YearStats />
+            {gameTab === "achievements" && (
+              <div className="space-y-8">
+                <Achievements />
+              </div>
+            )}
 
-            <ProgressCharts />
+            {gameTab === "analysis" && (
+              <div className="space-y-8">
+                <ProgressCharts />
+              </div>
+            )}
           </div>
         )}
 

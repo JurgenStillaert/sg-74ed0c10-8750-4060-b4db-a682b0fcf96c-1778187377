@@ -262,6 +262,7 @@ export function Achievements() {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-3xl font-display text-primary">Prestaties</h2>
       {recentAchievement && (
         <div className="relative overflow-hidden bg-gradient-to-r from-primary via-accent to-primary bg-[length:200%_100%] animate-[shimmer_3s_ease-in-out_infinite] p-[2px] rounded-lg">
           <div className="bg-background rounded-lg p-6 text-center">

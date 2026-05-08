@@ -1,6 +1,6 @@
 ---
 title: 'Onder "het spel": nieuwe tabs'
-status: todo
+status: in_progress
 priority: urgent
 type: feature
 created_by: human
@@ -23,3 +23,10 @@ Maak twee nieuwe tabs aan met de volgende content:
    - Lichaamssamenstelling
 
 Toon de secties over de dagen (groene, rode en jokers) enkel onder "Kalender overzicht". Dus verwijderen uit Het spel
+
+## Checklist
+- [x] GameTabs component gemaakt met Verdiensten en Analyse tabs
+- [x] Achievements verplaatst naar Verdiensten tab en hernoemd naar Prestaties
+- [x] ProgressCharts verplaatst naar Analyse tab
+- [ ] YearStats verwijderen uit Het spel tab (blijft alleen in Kalender)
+- [ ] Alle analyse secties correct tonen in Analyse tab
