@@ -1,6 +1,6 @@
 ---
 title: 'Onder "het spel": nieuwe tabs'
-status: in_progress
+status: done
 priority: urgent
 type: feature
 created_by: human
@@ -28,5 +28,5 @@ Toon de secties over de dagen (groene, rode en jokers) enkel onder "Kalender ove
 - [x] GameTabs component gemaakt met Verdiensten en Analyse tabs
 - [x] Achievements verplaatst naar Verdiensten tab en hernoemd naar Prestaties
 - [x] ProgressCharts verplaatst naar Analyse tab
-- [ ] YearStats verwijderen uit Het spel tab (blijft alleen in Kalender)
-- [ ] Alle analyse secties correct tonen in Analyse tab
+- [x] YearStats verwijderen uit Het spel tab (blijft alleen in Kalender)
+- [x] Alle analyse secties correct tonen in Analyse tab
