@@ -230,8 +230,18 @@ export const db = {
   getTotalDeficitNeeded: (): number | null => {
     const goals = db.getGoals();
     if (!goals) return null;
-    const weightToLose = goals.startWeight - goals.goalWeight;
-    return weightToLose * 7700;
+    
+    // Calculate current fat mass
+    const currentFatMass = Math.round((goals.startWeight * (goals.startBodyFat / 100)) * 100) / 100;
+    
+    // Calculate desired fat mass at goal weight
+    const desiredFatMass = Math.round((goals.goalWeight * (goals.goalBodyFat / 100)) * 100) / 100;
+    
+    // Calculate fat to lose
+    const fatToLose = Math.round((currentFatMass - desiredFatMass) * 100) / 100;
+    
+    // Total deficit needed (7700 kcal per kg fat)
+    return fatToLose * 7700;
   },
 
   getTotalDeficitAchieved: (): number => {
