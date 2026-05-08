@@ -10,10 +10,12 @@ position: 5
 
 ## Notes
 De berekening moet als volgt zijn:
-- Vetmassa = =AFRONDEN(Gewicht*Vetpercentage/100;2)
+- Vetmassa = AFRONDEN(Gewicht*Vetpercentage/100;2)
 - Vet te verliezen = AFRONDEN(Vetmassa-Gewicht*Gewenste vetpercentage;2)
-- Totaal gewenste deficit = =Vet te verliezen*7700
+- Totaal gewenste deficit = Vet te verliezen*7700
+
+BELANGRIJK: "Gewicht" is het START gewicht in beide formules!
 
 ## Checklist
-- [x] - Pas de berekoning aan voor totaal deficit
+- [x] Pas de berekoning aan voor totaal deficit
 - [x] Maak een unit tests om deze berekening te controleren

@@ -234,8 +234,8 @@ export const db = {
     // Calculate current fat mass
     const currentFatMass = Math.round((goals.startWeight * (goals.startBodyFat / 100)) * 100) / 100;
     
-    // Calculate desired fat mass at goal weight
-    const desiredFatMass = Math.round((goals.goalWeight * (goals.goalBodyFat / 100)) * 100) / 100;
+    // Calculate desired fat mass at START weight (not goal weight!)
+    const desiredFatMass = Math.round((goals.startWeight * (goals.goalBodyFat / 100)) * 100) / 100;
     
     // Calculate fat to lose
     const fatToLose = Math.round((currentFatMass - desiredFatMass) * 100) / 100;

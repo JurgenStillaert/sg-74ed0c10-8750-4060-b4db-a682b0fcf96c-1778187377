@@ -100,3 +100,37 @@ describe("db.getTotalDeficitNeeded", () => {
     expect(result).toBe(85778);
   });
 });
+
+describe("db calculations", () => {
+  it("should calculate total deficit needed correctly", () => {
+    const goals: UserGoals = {
+      startWeight: 73.6,
+      goalWeight: 68,
+      startBodyFat: 15.2,
+      goalBodyFat: 10,
+      endDate: "2026-12-31",
+      createdAt: "2026-01-01",
+      totalJokers: 10,
+    };
+
+    // Mock localStorage
+    const localStorageMock = {
+      getItem: (key: string) => {
+        if (key === "afval_queeste_goals") {
+          return JSON.stringify(goals);
+        }
+        return null;
+      },
+      setItem: () => {},
+    };
+    Object.defineProperty(global, "localStorage", { value: localStorageMock });
+
+    // Calculate expected result:
+    // Current fat mass: 73.6 * 0.152 = 11.1872 ≈ 11.19kg
+    // Desired fat mass: 73.6 * 0.10 = 7.36kg
+    // Fat to lose: 11.19 - 7.36 = 3.83kg
+    // Total deficit: 3.83 * 7700 = 29,491 kcal
+    const result = db.getTotalDeficitNeeded();
+    expect(result).toBe(29491);
+  });
+});
