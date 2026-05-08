@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { db } from "@/lib/db";
-import { CheckCircle, XCircle, TrendingUp } from "lucide-react";
+import { CheckCircle, XCircle, TrendingUp, Zap } from "lucide-react";
 
 export function YearStats() {
   const stats = db.getYearStats();
