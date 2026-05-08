@@ -18,6 +18,7 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
     goalWeight: "",
     startBodyFat: "",
     goalBodyFat: "",
+    startDate: "",
     endDate: "",
   });
 
@@ -69,6 +70,16 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
       }
     }
 
+    if (!formData.startDate) {
+      newErrors.startDate = "Selecteer een begindatum";
+    } else if (formData.endDate && formData.startDate) {
+      const startDate = new Date(formData.startDate);
+      const endDate = new Date(formData.endDate);
+      if (startDate >= endDate) {
+        newErrors.startDate = "Begindatum moet vóór einddatum zijn";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -82,6 +93,7 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
       goalWeight: parseFloat(formData.goalWeight),
       startBodyFat: parseFloat(formData.startBodyFat),
       goalBodyFat: parseFloat(formData.goalBodyFat),
+      startDate: formData.startDate,
       endDate: formData.endDate,
       createdAt: new Date().toISOString(),
     };
@@ -180,6 +192,23 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
                   <p className="text-sm text-destructive">{errors.goalBodyFat}</p>
                 )}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="startDate" className="flex items-center gap-2 text-base font-semibold">
+                <Calendar className="w-4 h-4 text-accent" />
+                Begindatum
+              </Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={formData.startDate}
+                onChange={(e) => handleChange("startDate", e.target.value)}
+                className={errors.startDate ? "border-destructive" : ""}
+              />
+              {errors.startDate && (
+                <p className="text-sm text-destructive">{errors.startDate}</p>
+              )}
             </div>
 
             <div className="space-y-2">

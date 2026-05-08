@@ -3,6 +3,7 @@ export interface UserGoals {
   goalWeight: number;
   startBodyFat: number;
   goalBodyFat: number;
+  startDate: string;
   endDate: string;
   createdAt: string;
 }
