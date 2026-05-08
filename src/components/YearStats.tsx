@@ -3,7 +3,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { db } from "@/lib/db";
-import { CheckCircle, XCircle, Zap, TrendingUp } from "lucide-react";
+import { CheckCircle, XCircle, TrendingUp } from "lucide-react";
 
 export function YearStats() {
   const stats = db.getYearStats();
@@ -65,7 +65,7 @@ export function YearStats() {
         </CardContent>
       </Card>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         <Card className="border-2 border-green-500/20">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -97,25 +97,25 @@ export function YearStats() {
             </p>
           </CardContent>
         </Card>
-
-        <Card className="border-2 border-amber-500/20">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Zap className="w-5 h-5 text-amber-600" />
-              Jokers
-            </CardTitle>
-            <CardDescription>Carb load dagen</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-4xl font-bold text-amber-600 tabular-nums">
-              {stats.jokersRemaining}
-            </p>
-            <p className="text-sm text-muted-foreground mt-2">
-              {stats.jokersUsed} van {stats.totalJokers} gebruikt
-            </p>
-          </CardContent>
-        </Card>
       </div>
+
+      <Card className="border-2 border-amber-500/20">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <Zap className="w-5 h-5 text-amber-600" />
+            Carb Load Dagen
+          </CardTitle>
+          <CardDescription>Jouw carb loading dagen voor wedstrijden</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-4xl font-bold text-amber-600 tabular-nums">
+            {stats.jokersUsed}
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Dagen gebruikt dit jaar
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

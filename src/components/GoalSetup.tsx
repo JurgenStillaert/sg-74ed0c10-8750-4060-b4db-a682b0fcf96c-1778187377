@@ -19,7 +19,6 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
     startBodyFat: "",
     goalBodyFat: "",
     endDate: "",
-    totalJokers: "12",
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -70,11 +69,6 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
       }
     }
 
-    const totalJokers = parseInt(formData.totalJokers);
-    if (!formData.totalJokers || isNaN(totalJokers) || totalJokers < 0) {
-      newErrors.totalJokers = "Vul een geldig aantal jokers in";
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -89,7 +83,6 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
       startBodyFat: parseFloat(formData.startBodyFat),
       goalBodyFat: parseFloat(formData.goalBodyFat),
       endDate: formData.endDate,
-      totalJokers: parseInt(formData.totalJokers),
       createdAt: new Date().toISOString(),
     };
 
@@ -204,27 +197,6 @@ export function GoalSetup({ onComplete }: GoalSetupProps) {
               {errors.endDate && (
                 <p className="text-sm text-destructive">{errors.endDate}</p>
               )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="totalJokers" className="text-base font-semibold">
-                Aantal jokers (carb load dagen)
-              </Label>
-              <Input
-                id="totalJokers"
-                type="number"
-                min="0"
-                placeholder="12"
-                value={formData.totalJokers}
-                onChange={(e) => handleChange("totalJokers", e.target.value)}
-                className={errors.totalJokers ? "border-destructive" : ""}
-              />
-              {errors.totalJokers && (
-                <p className="text-sm text-destructive">{errors.totalJokers}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Dagen waarop je carb loading doet voor een wedstrijd
-              </p>
             </div>
 
             <Button type="submit" className="w-full h-12 text-lg font-semibold">

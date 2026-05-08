@@ -5,7 +5,6 @@ export interface UserGoals {
   goalBodyFat: number;
   endDate: string;
   createdAt: string;
-  totalJokers: number;
 }
 
 export type DayClassification = "green" | "red" | "joker";
@@ -207,10 +206,6 @@ export const db = {
     const greenDays = statuses.filter((s) => s.classification === "green").length;
     const redDays = statuses.filter((s) => s.classification === "red").length;
     const jokersUsed = statuses.filter((s) => s.classification === "joker").length;
-    
-    const goals = db.getGoals();
-    const totalJokers = goals?.totalJokers || 0;
-    const jokersRemaining = totalJokers - jokersUsed;
 
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
@@ -226,8 +221,6 @@ export const db = {
       greenDays,
       redDays,
       jokersUsed,
-      jokersRemaining,
-      totalJokers,
       daysPassed,
       daysRemaining,
       allowedRedDays,
