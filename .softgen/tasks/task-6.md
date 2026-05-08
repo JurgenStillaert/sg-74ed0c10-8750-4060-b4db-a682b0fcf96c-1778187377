@@ -1,6 +1,6 @@
 ---
 title: Berekening Totaal Deficit is fout
-status: todo
+status: done
 priority: urgent
 type: bug
 created_by: human
